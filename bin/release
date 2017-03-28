@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# bin/release <build-dir>
+
+BUILD_DIR=$1
+
+cat <<EOF
+---
+config_vars:
+  JAVA_OPTS: -Xmx384m -Xss512k -XX:+UseCompressedOops
+EOF
+
+if [ ! -f $BUILD_DIR/Procfile ]; then
+    #web:    play run --http.port=\$PORT \$PLAY_OPTS
+  cat <<EOF
+  default_process_types:
+    web: java -jar webapp-runner.jar ./*.war
+  EOF
+fi
