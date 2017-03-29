@@ -18,13 +18,18 @@ if [ "$STACK" = "scalingo" ] ; then
   export STACK="cedar-14"
 fi
 
+# Install Java
 JVM_COMMON_BUILDPACK=${JVM_COMMON_BUILDPACK:-https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/jvm-common.tgz}
 mkdir -p /tmp/jvm-common
-curl --retry 3 --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common
---strip-components=1
+curl --retry 3 --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common --strip-components=1
 . /tmp/jvm-common/bin/util
 . /tmp/jvm-common/bin/java
 
 install_java_with_overlay ${BUILD_DIR}
+
+# Install Webapp Runner
+WEBAPP_RUNNER_VERSION=${WEBAPP_RUNNER_VERSION:-8.5.11.3}
+WEBAPP_RUNNER_URL="http://central.maven.org/maven2/com/github/jsimone/webapp-runner/${WEBAPP_RUNNER_VERSION}/webapp-runner-${WEBAPP_RUNNER_VERSION}.jar"
+curl --retry 3 --silent --location $WEBAPP_RUNNER_URL --output /usr/local/bin/webapp-runner.jar
 
 mkdir -p $CACHE_DIR

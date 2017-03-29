@@ -13,6 +13,6 @@ if [ ! -f $BUILD_DIR/Procfile ]; then
     #web:    play run --http.port=\$PORT \$PLAY_OPTS
   cat <<EOF
   default_process_types:
-    web: java -jar webapp-runner.jar ./*.war
+    web: java -jar /usr/local/bin/webapp-runner.jar --port \$PORT ./*.war
   EOF
 fi
