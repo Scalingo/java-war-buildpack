@@ -1,0 +1,3 @@
+[submodule "buildpack-deployer"]
+	path = buildpack-deployer
+	url = https://github.com/Scalingo/buildpack-deployer
