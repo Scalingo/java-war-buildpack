@@ -10,9 +10,6 @@ config_vars:
 EOF
 
 if [ ! -f $BUILD_DIR/Procfile ]; then
-    #web:    play run --http.port=\$PORT \$PLAY_OPTS
-  cat <<EOF
-  default_process_types:
-    web: java -jar /usr/local/bin/webapp-runner.jar --port \$PORT ./*.war
-  EOF
+    echo "default_process_types:"
+    echo "  web: java \$JAVA_OPTS -jar ./webapp-runner.jar --port \$PORT ./*.war"
 fi
