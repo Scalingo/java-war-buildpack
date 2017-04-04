@@ -15,12 +15,22 @@ and execute a web process with the command `java -jar
 
 ### Choose a JDK
 
-If you want to specfiy a version of the JDK, just set the environment variable
+If you want to specifiy a version of the JDK, just set the environment variable
 `JAVA_VERSION` in your application. You can do that either on the dashboard or
 using our CLI with:
 
 ```
 scalingo --app app-name env-set JAVA_VERSION=1.7
+```
+
+### Choose a Tomcat version
+
+You can specify a version of Tomcat by modifying the Webapp Runner version.
+It can be done with the environment variable `WEBAPP_RUNNER_VERSION`. You
+can set it either on the dashboard or using our CLI with:
+
+```
+scalingo --app app-name env-set WEBAPP_RUNNER_VERSION=8.0.39.0
 ```
 
 ## License
