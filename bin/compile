@@ -25,6 +25,9 @@ curl --retry 3 --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-c
 . /tmp/jvm-common/bin/util
 . /tmp/jvm-common/bin/java
 
+if [[ -n "${JAVA_VERSION}" ]]; then
+  echo "java.runtime.version=${JAVA_VERSION}" > ${BUILD_DIR}/system.properties
+fi
 install_java_with_overlay ${BUILD_DIR}
 
 # Install Webapp Runner
