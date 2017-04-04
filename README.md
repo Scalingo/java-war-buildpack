@@ -20,7 +20,7 @@ If you want to specfiy a version of the JDK, just set the environment variable
 using our CLI with:
 
 ```
-scalingo --app app_name env-set JAVA_VERSION=1.7
+scalingo --app app-name env-set JAVA_VERSION=1.7
 ```
 
 ## License
