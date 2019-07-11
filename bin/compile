@@ -14,12 +14,8 @@ ENV_DIR=$3
 
 export_env_dir $ENV_DIR
 
-if [ "$STACK" = "scalingo" ] ; then
-  export STACK="cedar-14"
-fi
-
 # Install Java
-JVM_COMMON_BUILDPACK=${JVM_COMMON_BUILDPACK:-https://codon-buildpacks.s3.amazonaws.com/buildpacks/heroku/jvm-common.tgz}
+JVM_COMMON_BUILDPACK=${JVM_COMMON_BUILDPACK:-"https://buildpacks-repository.s3.eu-central-1.amazonaws.com/jvm-common.tar.xz"}
 mkdir -p /tmp/jvm-common
 curl --retry 3 --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common --strip-components=1
 . /tmp/jvm-common/bin/util
