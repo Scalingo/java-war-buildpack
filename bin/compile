@@ -17,7 +17,7 @@ export_env_dir $ENV_DIR
 # Install Java
 JVM_COMMON_BUILDPACK=${JVM_COMMON_BUILDPACK:-"https://buildpacks-repository.s3.eu-central-1.amazonaws.com/jvm-common.tar.xz"}
 mkdir -p /tmp/jvm-common
-curl --retry 3 --silent --location $JVM_COMMON_BUILDPACK | tar xzm -C /tmp/jvm-common --strip-components=1
+curl --retry 3 --silent --location $JVM_COMMON_BUILDPACK | tar xJm -C /tmp/jvm-common --strip-components=1
 . /tmp/jvm-common/bin/util
 . /tmp/jvm-common/bin/java
 
