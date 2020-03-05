@@ -31,8 +31,8 @@ fi
 install_java_with_overlay ${BUILD_DIR}
 
 # Install Webapp Runner
-WEBAPP_RUNNER_VERSION=${WEBAPP_RUNNER_VERSION:-8.5.11.3}
-WEBAPP_RUNNER_URL="http://central.maven.org/maven2/com/github/jsimone/webapp-runner/${WEBAPP_RUNNER_VERSION}/webapp-runner-${WEBAPP_RUNNER_VERSION}.jar"
+WEBAPP_RUNNER_VERSION=${WEBAPP_RUNNER_VERSION:-8.5.51.0}
+WEBAPP_RUNNER_URL="https://buildpacks-repository.s3.eu-central-1.amazonaws.com/webapp-runner-${WEBAPP_RUNNER_VERSION}.jar"
 curl --retry 3 --silent --location $WEBAPP_RUNNER_URL --output ${BUILD_DIR}/webapp-runner.jar
 
 mkdir -p $CACHE_DIR
