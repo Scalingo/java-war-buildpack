@@ -1,7 +1,7 @@
 version = "1.0.0"
 owner = "etienne@scalingo.com"
 team = "IST"
-description = "Buildpack to deploy a war package (install jvm + webapp runner)"
+description = "Buildpack to deploy a WAR package (install JVM + webapp runner)"
 languages = ["shell"]
 destination_server = []
 flags = ["buildpack"]
