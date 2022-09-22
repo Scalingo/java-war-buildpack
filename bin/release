@@ -9,7 +9,5 @@ config_vars:
   JAVA_OPTS: -Xmx384m -Xss512k -XX:+UseCompressedOops
 EOF
 
-if [ ! -f $BUILD_DIR/Procfile ]; then
-    echo "default_process_types:"
-    echo "  web: java \$JAVA_OPTS -jar ./webapp-runner.jar --port \$PORT ./*.war"
-fi
+echo "default_process_types:"
+echo "  web: java \$JAVA_OPTS -jar ./webapp-runner.jar --port \$PORT ./*.war"
