@@ -36,7 +36,7 @@ deployment:
 #### `JAVA_VERSION`
 
 Version of the Java Runtime Environment to deploy.\
-Defaults to `17`
+Defaults to `1.8`
 
 #### `JAVA_WEBAPP_RUNNER_VERSION`
 
