@@ -3,7 +3,11 @@
 
 build_dir="${1}"
 
-if [ -n "${WAR_PATH}" ]
+if [[ -n "${WAR_PATH}" && -f "${build_dir}/${WAR_PATH}" ]] ; then
+   [...]
+elif [ -n "$( find "${build_dir}" -maxdepth 1 -name "*.war" -type f )" ] ; then
+  [...]
+fi
 then
     if [ -f "${build_dir}/${WAR_PATH}" ]
     then
