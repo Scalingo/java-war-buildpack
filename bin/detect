@@ -4,22 +4,11 @@
 build_dir="${1}"
 
 if [[ -n "${WAR_PATH}" && -f "${build_dir}/${WAR_PATH}" ]] ; then
-   [...]
+    echo "WAR"
+    exit 0
 elif [ -n "$( find "${build_dir}" -maxdepth 1 -name "*.war" -type f )" ] ; then
-  [...]
-fi
-then
-    if [ -f "${build_dir}/${WAR_PATH}" ]
-    then
-        echo "WAR"
-        exit 0
-    fi
-else
-    if [ -n "$( find "${build_dir}" -maxdepth 1 -name "*.war" -type f )" ]
-    then
-        echo "WAR"
-        exit 0
-    fi
+    echo "WAR"
+    exit 0
 fi
 
 echo "no"
