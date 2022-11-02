@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
-BUILD_DIR=$1
+build_dir="${1}"
 
-if [[ -n "$(find $BUILD_DIR -name *.war -type f)" ]]; then
-  echo "WAR"
-  exit 0
+if [[ -n "${WAR_PATH}" && -f "${build_dir}/${WAR_PATH}" ]] ; then
+    echo "WAR"
+    exit 0
+elif [ -n "$( find "${build_dir}" -maxdepth 1 -name "*.war" -type f )" ] ; then
+    echo "WAR"
+    exit 0
 fi
 
 echo "no"
