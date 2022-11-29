@@ -51,6 +51,8 @@ install_webapp_runner() {
   jvm_url="${JVM_COMMON_BUILDPACK:-"${buildpacks_repository_url}/jvm-common.tar.xz"}"
   runner_url="${buildpacks_repository_url}/webapp-runner-${runner_version}.jar"
 
+  echo "-----> Installing Webapp Runner ${runner_version}..."
+
   # Install JVM common tools:
   cached_jvm_common="${cache_d}/jvm-common.tar.xz"
 
@@ -80,15 +82,18 @@ install_webapp_runner() {
 
   # Install Webapp Runner
   cached_runner="${cache_d}/webapp-runner-${runner_version}.jar"
-
   if [ ! -f "${cached_runner}" ]; then
+    echo "-----> Downloading webapp runner"
+
     curl --location --silent --retry 6 --retry-connrefused --retry-delay 0 \
         "${runner_url}" \
         --output "${cached_runner}" \
         || {
-            echo "Unable to download webapp runner ${runner_version}. Aborting."
+            echo "Unable to download webapp runner ${runner_version}. Aborting." >&2
             exit 1
         }
+  else
+    echo "-----> Got webapp runner from the cache"
   fi
 
   cp "${cached_runner}" "${build_d}/webapp-runner.jar"
