@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
-build_dir="${1}"
+source "$(dirname "$( realpath "$0" )")/utils.sh"
 
-if [[ -n "${WAR_PATH}" && -f "${build_dir}/${WAR_PATH}" ]] ; then
-    echo "WAR"
-    exit 0
-elif [ -n "$( find "${build_dir}" -maxdepth 1 -name "*.war" -type f )" ] ; then
+
+if [ -z "${WAR_PATH}" ]; then
+    java::war::find_war
+fi
+
+if [ -n "${WAR_PATH}" ] && [ -f "${HOME}/${WAR_PATH}" ]; then
     echo "WAR"
     exit 0
 fi

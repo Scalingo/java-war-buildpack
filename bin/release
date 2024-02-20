@@ -6,11 +6,5 @@ cat <<EOF
 config_vars:
   JAVA_OPTS: -Xmx384m -Xss512k -XX:+UseCompressedOops
 default_process_types:
+  web: \${HOME}/bin/start-war-app
 EOF
-
-if [ -n "${WAR_PATH}" ]
-then
-    echo "  web: java \${JAVA_OPTS} -jar ./webapp-runner.jar --port \${PORT} \"\${WAR_PATH}\""
-else
-    echo "  web: java \${JAVA_OPTS} -jar ./webapp-runner.jar --port \${PORT} ./*.war"
-fi
