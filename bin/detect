@@ -1,14 +1,26 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
-source "$(dirname "$( realpath "$0" )")/utils.sh"
+# shellcheck source=bin/utils.sh
+source "$(dirname "$( realpath "$0" )")/compile"
+
+build_dir="${1}"
+
+declare -r build_dir
 
 
 if [ -z "${WAR_PATH}" ]; then
-    java::war::find_war
+    java::war::find_war "${build_dir}"
 fi
 
-if [ -n "${WAR_PATH}" ] && [ -f "${HOME}/${WAR_PATH}" ]; then
+# Just check that WAR_PATH is set, which means that:
+# - it has been set by the user,
+# - or a .war file has been found by`java::war::find_war`.
+#
+# We will check the existence of the file in `bin/compile`.
+# If WAR_PATH is still unset at this point, we can't do much more.
+
+if [ -n "${WAR_PATH}" ]; then
     echo "WAR"
     exit 0
 fi
