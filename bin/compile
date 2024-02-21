@@ -15,11 +15,10 @@ java::war::install_webapp_runner() {
     #   JVM_COMMON_BUILDPACK
     #
     # Arguments:
-    #   $1 > $build_d
-    #   $2 > $cache_d
-    #   $3 > $jre_version:
-    #
-    #   $4 > $runner_version:
+    #   $1 > $build_d: BUILD_DIR
+    #   $2 > $cache_d: CACHE_DIR
+    #   $3 > $jre_version: JRE version we want to install.
+    #   $4 > $runner_version: Webapp-runner (Tomcat) version we want to install.
 
     local build_d="${1}"
     local cache_d="${2}"
