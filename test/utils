@@ -591,7 +591,7 @@ test::utils::assertFileDoesNotExist() {
     assertTrue "${file_path} exists" "[[ ! -e "${file_path}" ]]"
 }
 
-test::utils::_enter_prod() {
+test::utils::enter_prod() {
     # Helper to switch to a production-like environment:
     # - $HOME is set to /app
     # - Working directory is set to $HOME
@@ -611,6 +611,8 @@ test::utils::_enter_prod() {
     # /!\ This function should be completed with instructions to adjust the
     #     PATH environment variable. These depend on the buildpack though, so
     #     we can't make something generic.
+    #     Notice that you should have a `test::helpers::_set_path` function
+    #     available for this purpose.
     #
     # Globals:
     #   HOME
@@ -633,4 +635,8 @@ test::utils::_enter_prod() {
     done
 
     unset p
+
+    # Adjust PATH if `test::helpers::_set_path` exists:
+    declare -f -F "test::helpers::_set_path" >/dev/null \
+        && test::helpers::_set_path
 }

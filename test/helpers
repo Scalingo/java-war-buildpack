@@ -29,7 +29,7 @@ test::helpers::common_deploy() {
     test::helpers::compile
 
     # Switch environment:
-    test::helpers::enter_prod
+    test::utils::enter_prod
 
     # Test Java version:
     test::helpers::jvm "${java_version}"
@@ -97,17 +97,15 @@ test::helpers::tomcat() {
     test::utils::assertCapturedMatches "Server number: +${version}"
 }
 
-test::helpers::enter_prod() {
-    # Helper to switch to a production-like environment:
+test::helpers::_set_path() {
+    # Helper to adjust the PATH environment variable.
+    # Automatically called by `test::utils::enter_prod`.
     #
     # Globals:
-    #   HOME
     #   PATH
     #
     # See also:
-    #   - `test::utils::_enter_prod`
-
-    test::utils::_enter_prod
+    #   - `test::utils::enter_prod`
 
     # Adjust PATH:
     PATH="${PATH}:${HOME}/bin:${HOME}/.jdk/bin"
