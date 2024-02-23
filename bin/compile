@@ -3,67 +3,47 @@
 
 set -eo pipefail
 
-if [[ -n "${BUILDPACK_DEBUG}" ]]; then
-  set -x
+if [ -n "${BUILDPACK_DEBUG}" ]; then
+    set -x
 fi
 
-readonly build_dir="${1}"
-readonly cache_dir="${2}"
-env_dir="${3}"
 
-readonly java_version="${JAVA_VERSION:-1.8}"
-readonly webapp_runner_version="${JAVA_WEBAPP_RUNNER_VERSION:-${WEBAPP_RUNNER_VERSION:-9.0.85.0}}"
+java::war::install_webapp_runner() {
+    # Installs Java and webapp_runner
+    #
+    # Globals:
+    #   JVM_COMMON_BUILDPACK
+    #
+    # Arguments:
+    #   $1 > $build_d: BUILD_DIR
+    #   $2 > $cache_d: CACHE_DIR
+    #   $3 > $jre_version: JRE version we want to install.
+    #   $4 > $runner_version: Webapp-runner (Tomcat) version we want to install.
 
-readonly base_dir="$( cd -P "$( dirname "$0" )" && pwd )"
-readonly buildpack_dir="$( readlink -f "${base_dir}/.." )"
+    local build_d="${1}"
+    local cache_d="${2}"
+    local jre_version="${3}"
+    local runner_version="${4}"
 
+    local buildpacks_repository_url="https://buildpacks-repository.s3.eu-central-1.amazonaws.com"
 
-source "${buildpack_dir}/lib/common.sh"
+    local jvm_url="${JVM_COMMON_BUILDPACK:-"${buildpacks_repository_url}/jvm-common.tar.xz"}"
+    local runner_url="${buildpacks_repository_url}/webapp-runner-${runner_version}.jar"
 
-export_env_dir "${env_dir}"
+    echo "-----> Installing Webapp Runner ${runner_version}..."
 
+    # Install JVM common tools:
+    local cached_jvm_common="${cache_d}/jvm-common.tar.xz"
 
-# Installs Java and webapp_runner
-#
-# Usage: install_webapp_runner <build_dir> <cache_dir> <java_version> <webapp_runner_version>
-#
-install_webapp_runner() {
-  local jvm_url
-  local runner_url
+    if [ ! -f "${cached_jvm_common}" ]
+    then
+      curl --location --silent --retry 6 --retry-connrefused --retry-delay 0 \
+          "${jvm_url}" \
+          --output "${cached_jvm_common}"
+    fi
 
-  local build_d
-  local cache_d
+    local tmp_d="$( mktemp -d jvm-common-XXXXXX )"
 
-  local tmp_d
-  local jre_version
-  local runner_version
-
-  local cached_jvm_common
-  local cached_runner
-
-  build_d="${1}"
-  cache_d="${2}"
-  jre_version="${3}"
-  runner_version="${4}"
-
-  local buildpacks_repository_url="https://buildpacks-repository.s3.eu-central-1.amazonaws.com"
-
-  jvm_url="${JVM_COMMON_BUILDPACK:-"${buildpacks_repository_url}/jvm-common.tar.xz"}"
-  runner_url="${buildpacks_repository_url}/webapp-runner-${runner_version}.jar"
-
-  echo "-----> Installing Webapp Runner ${runner_version}..."
-
-  # Install JVM common tools:
-  cached_jvm_common="${cache_d}/jvm-common.tar.xz"
-
-  if [ ! -f "${cached_jvm_common}" ]
-  then
-    curl --location --silent --retry 6 --retry-connrefused --retry-delay 0 \
-        "${jvm_url}" \
-        --output "${cached_jvm_common}"
-  fi
-
-  tmp_d=$( mktemp -d jvm-common-XXXXXX ) && {
     tar --extract --xz --touch --strip-components=1 \
         --file "${cached_jvm_common}" \
         --directory "${tmp_d}"
@@ -72,35 +52,126 @@ install_webapp_runner() {
     source "${tmp_d}/bin/util"
     source "${tmp_d}/bin/java"
 
-    echo "java.runtime.version=${jre_version}" \
-        > "${build_d}/system.properties"
+    echo "java.runtime.version=${jre_version}" > "${build_d}/system.properties"
 
     install_java_with_overlay "${build_d}"
 
-    rm -Rf "${tmp_d}"
-  }
+    rm --recursive --force "${tmp_d}"
 
-  # Install Webapp Runner
-  cached_runner="${cache_d}/webapp-runner-${runner_version}.jar"
-  if [ ! -f "${cached_runner}" ]; then
-    echo "-----> Downloading webapp runner"
+    # Install Webapp Runner
+    local cached_runner="${cache_d}/webapp-runner-${runner_version}.jar"
 
-    curl --location --silent --retry 6 --retry-connrefused --retry-delay 0 \
-        "${runner_url}" \
-        --output "${cached_runner}" \
-        || {
-            echo "Unable to download webapp runner ${runner_version}. Aborting." >&2
-            exit 1
-        }
-  else
-    echo "-----> Got webapp runner from the cache"
-  fi
+    if [ ! -f "${cached_runner}" ]; then
+        echo "-----> Downloading webapp runner"
 
-  cp "${cached_runner}" "${build_d}/webapp-runner.jar"
+        curl --location --silent --retry 6 --retry-connrefused --retry-delay 0 \
+            "${runner_url}" \
+            --output "${cached_runner}" \
+            || {
+                echo "Unable to download webapp runner ${runner_version}. Aborting." >&2
+                exit 1
+            }
+    else
+        echo "-----> Got webapp runner from the cache"
+    fi
+
+    cp "${cached_runner}" "${build_d}/webapp-runner.jar"
 }
 
-readonly -f install_webapp_runner
+function java::war::find_war() {
+    # Tries to find a .war file in the given directory.
+    #
+    # We only search in the given dir.
+    # Only the first .war file is considered.
+    #
+    # Arguments:
+    #   $1 > $search_dir: Path to the searched directory (should be BUILD_DIR).
+    #
+    # Globals:
+    #   WAR_PATH
+    #
+    # Returns:
+    #   0 when successful, 1 otherwise
+
+    local rc=1
+    local search_dir="${1}"
+    local war_path
+
+    war_path="$( find "${search_dir}" \
+                    -nowarn \
+                    -iname "*.war" \
+                    -type f \
+                    -printf "%P" \
+                    -quit )"
+
+    if [ -n "${war_path}" ]; then
+        WAR_PATH="${war_path}"
+        export WAR_PATH
+        rc=0
+    fi
+
+    return "${rc}"
+}
 
 
-install_webapp_runner "${build_dir}" "${cache_dir}" \
-    "${java_version}" "${webapp_runner_version}"
+readonly -f java::war::install_webapp_runner
+readonly -f java::war::find_war
+
+
+# This allows the file to be sourced without actually running it.
+# The goal is to be able to import functions defined in here from another file.
+# Inspired by Python's `if __name__ == "__main__":`
+
+running="$( basename "${0}" )"
+
+if [ "${running}" == "compile" ]; then
+
+    build_dir="${1}"
+    cache_dir="${2}"
+    env_dir="${3}"
+
+    java_version="${JAVA_VERSION:-1.8}"
+    webapp_runner_version="${JAVA_WEBAPP_RUNNER_VERSION:-${WEBAPP_RUNNER_VERSION:-9.0.85.0}}"
+
+    base_dir="$( cd -P "$( dirname "$0" )" && pwd )"
+    buildpack_dir="$( readlink -f "${base_dir}/.." )"
+
+    declare -r build_dir
+    declare -r cache_dir
+
+    declare -r java_version
+    declare -r webapp_runner_version
+
+    declare -r base_dir
+    declare -r buildpack_dir
+
+    source "${buildpack_dir}/lib/common.sh"
+
+    export_env_dir "${env_dir}"
+
+    # If WAR_PATH is undefined, let's (re)launch a search
+    # The first one has been done by `bin/detect` and was successful (else we
+    # wouldn't be here).
+    if [ -z "${WAR_PATH}" ]; then
+        java::war::find_war "${build_dir}"
+
+        cat << EOF
+-----> I will try to run '${WAR_PATH}'.
+-----> If this is not OK, please use the 'WAR_PATH' environment variable to set
+       the path to the .war file I should try to run. Please remember that this
+       path must be relative to the root directory of your project.
+EOF
+    fi
+
+    if [ ! -f "${HOME}/${WAR_PATH}" ]; then
+        cat << EOF >&2
+!      The WAR_PATH environment variable points to a non-existing file ('${WAR_PATH}')!
+!      Please make sure it points to an existing file, relative to your project root directory.
+!      Aborting.
+EOF
+        exit 1
+    fi
+
+    java::war::install_webapp_runner "${build_dir}" "${cache_dir}" \
+        "${java_version}" "${webapp_runner_version}"
+fi
