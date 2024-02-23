@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+
+source "$( pwd )/test/utils"
+source "$( pwd )/test/helpers"
+
+
+default_jvm_version="1.8"
+default_tomcat_version="9.0.85.0"
+
+test::war::defaults() {
+    # Tests a deployment of a war app
+    # With default settings
+
+    test::utils::setupFixture "war_defaults"
+    test::helpers::common_deploy "WAR" \
+        "${default_jvm_version}." "${default_tomcat_version}"
+}
+
+test::war::jvm1-8() {
+    # Tests a deployment of a war app
+    # Specifying we want JVM 1.8 via environment
+
+    JAVA_VERSION="1.8"
+    export JAVA_VERSION
+
+    test::utils::setupFixture "war_defaults"
+    test::helpers::common_deploy "WAR" \
+        "${JAVA_VERSION}." "${default_tomcat_version}"
+}
+
+test::war::jvm17() {
+    # Tests a deployment of a war app
+    # Specifying we want JVM 17 via environment
+
+    JAVA_VERSION="17"
+    export JAVA_VERSION
+
+    test::utils::setupFixture "war_defaults"
+    test::helpers::common_deploy "WAR" \
+        "${JAVA_VERSION}." "${default_tomcat_version}"
+}
+
+test::war::jvm18() {
+    # Tests a deployment of a war app
+    # Specifying we want JVM 18 via environment
+
+    JAVA_VERSION="18"
+    export JAVA_VERSION
+
+    test::utils::setupFixture "war_defaults"
+    test::helpers::common_deploy "WAR" \
+        "${JAVA_VERSION}." "${default_tomcat_version}"
+}
+
+test::war::jvm19() {
+    # Tests a deployment of a war app
+    # Specifying we want JVM 19 via environment
+
+    JAVA_VERSION="19"
+    export JAVA_VERSION
+
+    test::utils::setupFixture "war_defaults"
+    test::helpers::common_deploy "WAR" \
+        "${JAVA_VERSION}." "${default_tomcat_version}"
+}
+
+test::war::tomcat9() {
+    # Tests a deployment of a war app
+    # Specifying we want Tomcat 9.0.85.0 via environment
+
+    JAVA_WEBAPP_RUNNER_VERSION="9.0.85.0"
+    export JAVA_WEBAPP_RUNNER_VERSION
+
+    test::utils::setupFixture "war_defaults"
+    test::helpers::common_deploy "WAR" \
+        "${default_jvm_version}." "${JAVA_WEBAPP_RUNNER_VERSION}"
+}
+
+test::war::tomcat10() {
+    # Tests a deployment of a war app
+    # Specifying we want Tomcat 10.1.18.0 via environment
+    # Specifying we want JVM17 via environment (required for Tomcat 10).
+
+    JAVA_VERSION="17"
+    export JAVA_VERSION
+
+    JAVA_WEBAPP_RUNNER_VERSION="10.1.18.0"
+    export JAVA_WEBAPP_RUNNER_VERSION
+
+    test::utils::setupFixture "war_defaults"
+    test::helpers::common_deploy "WAR" \
+        "${JAVA_VERSION}." "${JAVA_WEBAPP_RUNNER_VERSION}"
+}
+
+test::war::war_in_rootdir() {
+    # Tests a deployment of a war app
+    # With the .war file in the root directory of the project
+
+    test::utils::setupFixture "war_defaults"
+    test::helpers::common_deploy "WAR" \
+        "${default_jvm_version}." "${default_tomcat_version}"
+}
+
+test::war::war_in_subir() {
+    # Tests a deployment of a war app
+    # With the .war file in a subdirectory of the project
+    # This must fail at the `bin/detect` step since we only look in the project
+    # root directory.
+
+    test::utils::setupFixture "war_in_subdir"
+    test::utils::detect
+
+    test::utils::assertCapturedError
+    test::utils::assertCapturedEquals "no"
+}
+
+test::war::war_in_rootdir_specified() {
+    # Tests a deployment of a war app
+    # Specifying the path to the .war file via environment
+    # With the .war file in the root directory of the project
+
+    WAR_PATH="sample.war"
+    export WAR_PATH
+
+    test::utils::setupFixture "war_defaults"
+    test::helpers::common_deploy "WAR" \
+        "${default_jvm_version}." "${default_tomcat_version}"
+}
+
+test::war::war_in_subir_specified() {
+    # Tests a deployment of a war app
+    # Specifying the path to the .war file via environment
+    # With the .war file in a subdirectory of the project
+
+    WAR_PATH="subdir/sample.war"
+    export WAR_PATH
+
+    test::utils::setupFixture "war_in_subdir"
+    test::helpers::common_deploy "WAR" \
+        "${default_jvm_version}." "${default_tomcat_version}"
+}
+
+test::war::no_war() {
+    # Tests a deployment of a war app
+    # Where there is no .war file!
+    # This must fail at the `bin/detect` step.
+
+    test::utils::setupFixture "no_war"
+    test::utils::detect
+
+    test::utils::assertCapturedError
+    test::utils::assertCapturedEquals "no"
+}
+
+suite_addTest test::war::defaults
+suite_addTest test::war::jvm1-8
+suite_addTest test::war::jvm17
+suite_addTest test::war::jvm18
+suite_addTest test::war::jvm19
+suite_addTest test::war::tomcat9
+suite_addTest test::war::tomcat10
+
+suite_addTest test::war::war_in_rootdir
+suite_addTest test::war::war_in_subir
+suite_addTest test::war::war_in_rootdir_specified
+suite_addTest test::war::war_in_subir_specified
+suite_addTest test::war::no_war

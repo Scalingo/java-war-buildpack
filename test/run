@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+buildpack_dir="${BUILDPACK_DIR:-"$( pwd )"}"
+
+suite() {
+    # Load tests from the following file:
+    source "${buildpack_dir}/test/tests"
+}
+
+oneTimeSetUp() {
+    TEST_SUITE_CACHE="$( mktemp --directory "${SHUNIT_TMPDIR}/test_suite_cache.XXXX" )"
+}
+
+oneTimeTearDown() {
+    rm --recursive --force "${TEST_SUITE_CACHE}"
+}
+
+setUp() {
+    OUTPUT_DIR="$( mktemp --directory "${SHUNIT_TMPDIR}/output.XXXX" )"
+
+    STD_OUT="${OUTPUT_DIR}/stdout"
+    STD_ERR="${OUTPUT_DIR}/stderr"
+
+    BUILD_DIR="${OUTPUT_DIR}/build"
+    CACHE_DIR="${OUTPUT_DIR}/cache"
+    HOME="${BUILD_DIR}"
+    BUILDPACK_DIR="$( mktemp --directory "/tmp/test-XXXXXX" )"
+
+    mkdir -p "${OUTPUT_DIR}" "${BUILD_DIR}" "${CACHE_DIR}"
+    export OUTPUT_DIR STD_OUT STD_ERR BUILD_DIR CACHE_DIR HOME BUILDPACK_DIR
+
+    # We'll probably update PATH during the test,
+    # let's keep the original value safe
+    PREV_PATH="${PATH}"
+    export PREV_PATH
+
+    # Copy the buildpack code into BUILDPACK_DIR:
+    cp --archive "$( pwd )"/* "${BUILDPACK_DIR}/"
+
+    # Make sure we have a /app directory:
+    mkdir --parents "/app"
+}
+
+tearDown() {
+    # Set HOME back to its original value:
+    HOME="/root"
+    export HOME
+
+    # We may have changed working dir, let's switch back to the initial one:
+    popd > /dev/null 2>&1
+
+    # Set PATH back to its original value:
+    PATH="${PREV_PATH}"
+    export PATH
+
+    # Remove /app:
+    rm --recursive --force "/app"
+
+    # Remove OUTPUT_DIR, which also removes BUILD_DIR and CACHE_DIR:
+    rm --recursive --force "${OUTPUT_DIR}"
+
+    # Remove BUILDPACK_DIR:
+    rm --recursive --force "${BUILDPACK_DIR}"
+
+    unset BUILDPACK_DIR BUILD_DIR CACHE_DIR
+    unset JAVA_VERSION JAVA_WEBAPP_RUNNER_VERSION
+}
+
+# Load shUnit2, which also run the tests:
+source "${buildpack_dir}/test/shunit2"

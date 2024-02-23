@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+
+### Helpers functions
+
+test::helpers::common_deploy() {
+    # Deploys a .war app step by step and tests that everything related to the
+    # PHP setup is as expected.
+    # To do so, this function runs the buildpack scripts and mimicks the
+    # platform behavior wherever needed.
+    #
+    # Globals:
+    #   STD_OUT
+    #
+    # Arguments:
+    #   $1 > $detect_expectation
+    #      See `test::helpers::detect`.
+    #
+    #   $2 > $php_version
+    #      See `test::helpers::php`.
+
+    local detect_expectation="${1}"
+    local java_version="${2}"
+    local webapp_runner_version="${3}"
+
+    # Test bin/detect:
+    test::helpers::detect "${detect_expectation}"
+
+    # Test bin/compile:
+    test::helpers::compile
+
+    # Switch environment:
+    test::utils::enter_prod
+
+    # Test Java version:
+    test::helpers::jvm "${java_version}"
+
+    # Test webapp-runner version:
+    test::helpers::tomcat "${webapp_runner_version}"
+
+    # Test that the Tomcat server works:
+    test::helpers::http_code 200
+}
+
+test::helpers::detect() {
+    # Runs the `bin/detect` script of the buildpack and then:
+    # - Asserts that it succeeded
+    # - Asserts that the output equals what's expected.
+    #
+    # Arguments:
+    #   $1 > $expected_output
+    #      The value of this variable must equal the actual output of the
+    #      `bin/detect` script for the assertion to pass.
+
+    local expected_output="${1}"
+
+    test::utils::detect
+
+    test::utils::assertCapturedSuccess
+    test::utils::assertCapturedEquals "${expected_output}"
+}
+
+test::helpers::compile() {
+    # Runs the `bin/compile` script of the buildpack and then:
+    # - Asserts that is succeeded
+
+    test::utils::compile
+
+    test::utils::assertCapturedSuccess
+}
+
+test::helpers::jvm() {
+    # Tests that the JVM has the expected version.
+    #
+    # Arguments:
+    #   $1 > $version: Expected JVM version
+
+    local version="${1}"
+
+    test::utils::capture java -version
+
+    # The previous command outputs to stderr...
+    # Consequently, we have to:
+    test::utils::assertErrorMatches "openjdk version \"${version}"
+}
+
+test::helpers::tomcat() {
+    # Tests that Tomcat (webapp-runner) has the expected version.
+    #
+    # Arguments:
+    #   $1 > $version: Expected Tomcat version
+
+    local version="${1}"
+
+    test::utils::capture java -classpath webapp-runner.jar \
+        org.apache.catalina.util.ServerInfo
+
+    test::utils::assertCapturedMatches "Server number: +${version}"
+}
+
+test::helpers::_set_path() {
+    # Helper to adjust the PATH environment variable.
+    # Automatically called by `test::utils::enter_prod`.
+    #
+    # Globals:
+    #   PATH
+    #
+    # See also:
+    #   - `test::utils::enter_prod`
+
+    # Adjust PATH:
+    PATH="${PATH}:${HOME}/bin:${HOME}/.jdk/bin"
+    export PATH
+}
+
+test::helpers::http_code() {
+    # Asserts that the Tomcat server running on localhost:3000 answers with the
+    # given HTTP code.
+    #
+    # Starts the Tomcat server, sends a GET request to localhost:3000, compares
+    # the HTTP code returned and stops the Tomcat server.
+    #
+    # Arguments:
+    #   $1 > $code: Expected HTTP code.
+
+    local code="${1}"
+    local url="http://localhost:3000"
+
+    test::helpers::start_tomcat >/dev/null 2>&1
+    test::utils::capture curl -s -o /dev/null -w "%{http_code}" "${url}"
+    test::helpers::stop_tomcat
+
+    test::utils::assertCapturedEquals "${code}"
+}
+
+test::helpers::start_tomcat() {
+    # Starts Tomcat, like the platform would (as specified in `bin/release`).
+    #
+    # The server will start on localhost:3000
+    # We also store the pid of the process in `$BUILD_DIR/.pid`, so we can kill
+    # it later.
+    #
+    # Globals:
+    #   PORT
+    #   JAVA_OPTS
+    #   WAR_PATH
+    #   BUILD_DIR
+
+    PORT=3000
+    export PORT
+
+    JAVA_OPTS="-Xmx384m -Xss512k -XX:+UseCompressedOops"
+    export JAVA_OPTS
+
+    if [ -n "${WAR_PATH}" ]; then
+        java ${JAVA_OPTS} -jar ./webapp-runner.jar \
+            --port "${PORT}" \
+            "${WAR_PATH}" &
+    else
+        java ${JAVA_OPTS} -jar ./webapp-runner.jar \
+            --port "${PORT}" \
+            ./*.war &
+    fi
+
+    echo $! > "${BUILD_DIR}/.pid"
+    sleep 5
+}
+
+test::helpers::stop_tomcat() {
+    # Stops the currently running Tomcat server.
+    #
+    # Globals:
+    #   BUILD_DIR
+
+    kill -TERM "$( cat "${BUILD_DIR}/.pid" )"
+}
