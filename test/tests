@@ -5,7 +5,7 @@ source "$( pwd )/test/helpers"
 
 
 default_jvm_version="1.8"
-default_tomcat_version="9.0.93.0"
+default_tomcat_version="9.0.96.0"
 
 test::war::defaults() {
     # Tests a deployment of a war app
