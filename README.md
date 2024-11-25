@@ -41,7 +41,7 @@ Defaults to `1.8`
 #### `JAVA_WEBAPP_RUNNER_VERSION`
 
 Version of the webapp-runner (Tomcat) to install and use.\
-Defaults to `9.0.96.0`
+Defaults to `9.0.97.0`
 
 #### `WEBAPP_RUNNER_VERSION`
 
