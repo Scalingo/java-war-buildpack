@@ -12,7 +12,7 @@ readonly cache_dir="${2}"
 env_dir="${3}"
 
 readonly java_version="${JAVA_VERSION:-1.8}"
-readonly webapp_runner_version="${JAVA_WEBAPP_RUNNER_VERSION:-${WEBAPP_RUNNER_VERSION:-9.0.105.0}}"
+readonly webapp_runner_version="${JAVA_WEBAPP_RUNNER_VERSION:-${WEBAPP_RUNNER_VERSION:-9.0.106.0}}"
 
 readonly base_dir="$( cd -P "$( dirname "$0" )" && pwd )"
 readonly buildpack_dir="$( readlink -f "${base_dir}/.." )"
