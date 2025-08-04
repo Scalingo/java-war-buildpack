@@ -7,8 +7,8 @@ if [[ -n "${BUILDPACK_DEBUG}" ]]; then
   set -x
 fi
 
-readonly build_dir="${1}"
-readonly cache_dir="${2}"
+build_dir="${1}"
+cache_dir="${2}"
 env_dir="${3}"
 
 readonly java_version="${JAVA_VERSION:-1.8}"
