@@ -7,8 +7,8 @@ if [[ -n "${BUILDPACK_DEBUG}" ]]; then
   set -x
 fi
 
-readonly build_dir="${1}"
-readonly cache_dir="${2}"
+build_dir="${1}"
+cache_dir="${2}"
 env_dir="${3}"
 
 readonly java_version="${JAVA_VERSION:-1.8}"
@@ -33,6 +33,7 @@ install_webapp_runner() {
 
   local build_d
   local cache_d
+  local buildpack_d
 
   local tmp_d
   local jre_version
@@ -43,8 +44,9 @@ install_webapp_runner() {
 
   build_d="${1}"
   cache_d="${2}"
-  jre_version="${3}"
-  runner_version="${4}"
+  buildpack_d="${3}"
+  jre_version="${4}"
+  runner_version="${5}"
 
   local buildpacks_repository_url="https://buildpacks-repository.s3.eu-central-1.amazonaws.com"
 
@@ -54,6 +56,7 @@ install_webapp_runner() {
   echo "-----> Installing Webapp Runner ${runner_version}..."
 
   # Install JVM common tools:
+
   cached_jvm_common="${cache_d}/jvm-common.tar.xz"
 
   if [ ! -f "${cached_jvm_common}" ]
@@ -69,13 +72,12 @@ install_webapp_runner() {
         --directory "${tmp_d}"
 
     # Source utilities and functions:
-    source "${tmp_d}/bin/util"
     source "${tmp_d}/bin/java"
 
     echo "java.runtime.version=${jre_version}" \
         > "${build_d}/system.properties"
 
-    install_java_with_overlay "${build_d}"
+    install_openjdk "${build_d}" "${buildpack_d}"
 
     rm -Rf "${tmp_d}"
   }
@@ -102,5 +104,5 @@ install_webapp_runner() {
 readonly -f install_webapp_runner
 
 
-install_webapp_runner "${build_dir}" "${cache_dir}" \
+install_webapp_runner "${build_dir}" "${cache_dir}" "${buildpack_dir}" \
     "${java_version}" "${webapp_runner_version}"
