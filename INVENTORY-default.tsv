@@ -1,0 +1,13 @@
+# This is a tab-separated file.
+# Each row has its own line and must have 3 columns (fields) separated by a tab character: version, URL and checksum.
+# The default value (the one used as default by the buildpack) must have a fourth column, whose value MUST be "default".
+# Only one row can have the "default" column.
+# Lines starting with a # are treated as comments. Empty lines are ignored.
+
+10.1.59.0	https://buildpacks-repository.s3.eu-central-1.amazonaws.com/webapp-runner-10.1.59.0.jar	sha256:4039bb1d41680a5c2aac4bca4ae93e58f8a764def81f434923563401610739da
+10.1.57.0	https://buildpacks-repository.s3.eu-central-1.amazonaws.com/webapp-runner-10.1.57.0.jar	sha256:ac1013f20aca7489dba9f690b6a3d5db8e123821e9f26041714719d41ec0509d
+10.1.56.0	https://buildpacks-repository.s3.eu-central-1.amazonaws.com/webapp-runner-10.1.56.0.jar	sha256:482dc7c585058b0066dc6a435400467aa8f634a7beaac807d8743fc946ab088b
+
+9.0.121.0	https://buildpacks-repository.s3.eu-central-1.amazonaws.com/webapp-runner-9.0.121.0.jar	sha256:a8d6f2dc2bcfa9467d6f8509fc89e7d63b443c0774f139258b1897dcd114d814	default
+9.0.120.0	https://buildpacks-repository.s3.eu-central-1.amazonaws.com/webapp-runner-9.0.120.0.jar	sha256:9d4830d1d2a5a60a509d7e7486541e7211b051df8f03a2bb0ef995f9f0acff80
+9.0.119.0	https://buildpacks-repository.s3.eu-central-1.amazonaws.com/webapp-runner-9.0.119.0.jar	sha256:cbe86423a51bcee590bfc176c6f693f403c747ad464577d928b8ff338b9c088d
