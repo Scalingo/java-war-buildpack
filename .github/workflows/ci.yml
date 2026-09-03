@@ -12,22 +12,35 @@ permissions:
   contents: read
 
 jobs:
+  shellcheck:
+    name: "ShellCheck"
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: Scalingo/actions/shellcheck@8c4d8c7b3d03b58f44873ba2e281f1c2de2a3381
+        with:
+          severity: style
+          files: |
+            vendor/cmnlib.sh
+            bin/*
+
   unit-tests:
     name: "Unit Tests (${{ matrix.stack }})"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         stack:
           - scalingo-22
+          - scalingo-24
+          - scalingo-26
     container:
       image: "scalingo/${{ matrix.stack }}:latest"
       env:
         STACK: "${{ matrix.stack }}"
     steps:
-      - name: 🛎  Checkout
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: 🔎 Run tests
+      - name: Run tests
         run: |
           test/run
 ...
