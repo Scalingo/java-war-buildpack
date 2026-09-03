@@ -20,6 +20,7 @@ jobs:
         with:
           severity: style
           files: |
+            vendor/cmnlib.sh
             bin/*
 
   unit-tests:
