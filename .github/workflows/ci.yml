@@ -16,7 +16,7 @@ jobs:
     name: "ShellCheck"
     runs-on: ubuntu-24.04
     steps:
-      - uses: Scalingo/actions/shellcheck@main
+      - uses: Scalingo/actions/shellcheck@8c4d8c7b3d03b58f44873ba2e281f1c2de2a3381
         with:
           severity: style
           files: |
