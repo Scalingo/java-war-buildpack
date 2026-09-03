@@ -1,4 +1,4 @@
-# Java War Buildpack
+# Java WAR Buildpack
 
 Run a Java Web Application Archive (`.war` file) on Scalingo using this
 buildpack.
@@ -9,11 +9,11 @@ buildpack.
 See our official documentation:
 👉 https://doc.scalingo.com/platform/deployment/deploy-java-jar-war
 
-This buildpack first deploys a Java JDK into your container.
+This buildpack first deploys a Java Development Kit (JDK) into your container.
 
 It then deploys a standalone CLI tool named **Webapp Runner**. Webapp
-Runner is based on the Apache Tomcat "pure Java" HTTP web server. It allows to
-run a WAR application on Scalingo.
+Runner is based on the Apache Tomcat HTTP web server. It allows to run a WAR
+application on Scalingo.
 
 
 ## Default Supported Version
