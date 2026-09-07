@@ -1,55 +1,50 @@
-# buildpack: Java WAR
+# Java WAR Buildpack
 
-This is a [buildpack](http://doc.scalingo.com/buildpacks) for WAR file.
+Run a Java Web Application Archive (`.war` file) on Scalingo using this
+buildpack.
 
-## Usage
 
-### Detection
+## Documentation
 
-If the `WAR_PATH` environment variable is set, this buildpack checks if a .war
-file exists where `WAR_PATH` points. If the file does actually exist, it is
-used and served as the application. Otherwise, the buildpack fails.
+See our official documentation:
+👉 https://doc.scalingo.com/platform/deployment/deploy-java-jar-war
 
-If `WAR_PATH` is not set, the buildpack falls back to checking if a .war file
-exists at the root of the project and uses it if it does exist.
+This buildpack first deploys a Java Development Kit (JDK) into your container.
 
-If you want to use a .war file stored at the root of your application, we
-advise to unset the `WAR_PATH` environment variable and let the platform do its
-magic.
+It then deploys a standalone CLI tool named **Webapp Runner**. Webapp
+Runner is based on the Apache Tomcat HTTP web server. It allows to run a WAR
+application on Scalingo.
 
-### Deployment Workflow
 
-During the *`BUILD`* phase, this buildpack:
+## Default Supported Version
 
-1. Downloads and installs the Java Runtime Environment.
-2. Downloads and installs a [webapp-runner](https://github.com/heroku/webapp-runner).
-3. Validates the build.
+The default Java JDK deployed by this buildpack depends on your [stack]:
 
-:tada: This process results into a scalable image, ready to be packaged into a
-container.
+- For `scalingo-22`: OpenJDK 1.8
+- For `scalingo-24`: OpenJDK 25
+- For `scalingo-26`: OpenJDK 25
 
-### Environment
+The default Webapp Runner deployed by this buildpack is defined in one of the
+[inventory] files of the buildpack.
 
-The following environment variables are available for you to tweak your
-deployment:
 
-#### `JAVA_VERSION`
+## Maintenance Status
 
-Version of the Java Runtime Environment to deploy.\
-Defaults to `1.8`
+This buildpack is maintained by Scalingo solely for the deployment assets and
+integration guidance provided in this repository and its associated
+documentation.
 
-#### `JAVA_WEBAPP_RUNNER_VERSION`
+Applying Java and Webapp Runner upgrades, as well as security patches remains
+the responsibility of the customer by updating the corresponding environment
+variables and redeploying the application.
 
-Version of the webapp-runner (Tomcat) to install and use.\
-Defaults to `9.0.120.0`
 
-#### `WEBAPP_RUNNER_VERSION`
+Should Scalingo discontinue maintenance of this buildpack or no longer
+recommend its use, a notice period of at least six months will be provided
+whenever feasible, except where immediate action is required due to security
+concerns or external constraints.
 
-**Deprecated**, please use [`JAVA_WEBAPP_RUNNER_VERSION`](#java_webapp_runner_version).
 
-#### `WAR_PATH`
+[inventory]: INVENTORY-default.tsv?plain=1
 
-Path to the .war file you want to run.\
-When unset, the platform tries to run a .war file at the root of the
-application.\
-Defaults to being unset
+[stack]: https://doc.scalingo.com/platform/internals/stacks/overview
