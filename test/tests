@@ -13,7 +13,7 @@ case "${STACK}" in
 		;;
 esac
 
-default_tomcat_version="9.0.121.0"
+default_tomcat_version="9.0.122.0"
 
 
 test::war::defaults() {
